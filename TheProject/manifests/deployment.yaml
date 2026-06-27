@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-with-kubernetes-project-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devops-with-kubernetes-project
+  template:
+    metadata:
+      labels:
+        app: devops-with-kubernetes-project
+    spec:
+      containers:
+        - name: devops-with-kubernetes-project
+          # Using latest for now, will update to a proper tag when new version is pushed
+          image: eetujukka/devops-with-kubernetes-project:latest
