@@ -14,5 +14,7 @@ spec:
     spec:
       containers:
         - name: log-output
-          # Using latest for now, will update to a proper tag when new version is pushed
-          image: eetujukka/log-output:latest
+          image: eetujukka/log-output:1.7
+          env:
+            - name: PORT
+              value: "3002"
