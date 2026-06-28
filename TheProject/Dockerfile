@@ -7,5 +7,6 @@ COPY package.json .
 RUN npm install
 
 COPY index.js .
+COPY index.html .
 
 CMD ["node", "index.js"]

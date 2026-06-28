@@ -14,5 +14,7 @@ spec:
     spec:
       containers:
         - name: devops-with-kubernetes-project
-          # Using latest for now, will update to a proper tag when new version is pushed
-          image: eetujukka/devops-with-kubernetes-project:latest
+          image: eetujukka/devops-with-kubernetes-project:1.5
+          env:
+            - name: PORT
+              value: "3001"
