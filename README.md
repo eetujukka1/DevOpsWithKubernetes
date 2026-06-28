@@ -10,3 +10,4 @@
 - [1.4](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/1.4/TheProject)
 - [1.5](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/1.5/TheProject)
 - [1.6](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/1.6/TheProject)
+- [1.7](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/1.7/LogOutput)
