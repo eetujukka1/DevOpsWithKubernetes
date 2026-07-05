@@ -6,17 +6,24 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const directory = path.join('/', 'usr', 'src', 'app', 'files');
-const filePath = path.join(directory, 'log.txt');
+const filePath = path.join(directory, 'pingpong.txt');
+
+const string = crypto.randomUUID();
 
 app.get('/', (_req, res) => {
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Failed to read log:', err);
-      res.status(500).send('Failed to read log file');
-      return;
+    const timestamp = new Date().toISOString();
+    const firstLine = `${timestamp} ${string}\n`;
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+        console.error('Failed to read log:', err);
+        res.status(500).send('Failed to read log file');
+        return;
     }
 
-    res.type('text/plain').send(data);
+    const secondLine = `Ping / Pongs: ${data}`
+
+    res.type('text/plain').send(`${firstLine}\n${secondLine}`);
   });
 });
 
