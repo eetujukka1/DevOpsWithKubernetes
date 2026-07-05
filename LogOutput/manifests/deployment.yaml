@@ -12,9 +12,20 @@ spec:
       labels:
         app: log-output
     spec:
+      volumes:
+        - name: shared-log
+          emptyDir: {}
       containers:
-        - name: log-output
-          image: eetujukka/log-output:1.7
+        - name: log-output-logger
+          image: eetujukka/log-output-logger:1.2
+          volumeMounts:
+            - name: shared-log
+              mountPath: /usr/src/app/files
+        - name: log-output-server
+          image: eetujukka/log-output-server:1.2
           env:
             - name: PORT
               value: "3002"
+          volumeMounts:
+            - name: shared-log
+              mountPath: /usr/src/app/files
