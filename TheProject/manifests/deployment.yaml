@@ -12,9 +12,16 @@ spec:
       labels:
         app: devops-with-kubernetes-project
     spec:
+      volumes:
+        - name: image-volume
+          persistentVolumeClaim:
+            claimName: the-project-claim
       containers:
         - name: devops-with-kubernetes-project
-          image: eetujukka/devops-with-kubernetes-project:1.5
+          image: eetujukka/devops-with-kubernetes-project:1.8
           env:
             - name: PORT
               value: "3001"
+          volumeMounts:
+            - name: image-volume
+              mountPath: /usr/src/app/files
