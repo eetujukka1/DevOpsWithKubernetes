@@ -18,7 +18,7 @@ spec:
             claimName: the-project-claim
       containers:
         - name: devops-with-kubernetes-project
-          image: eetujukka/devops-with-kubernetes-project:1.8
+          image: eetujukka/devops-with-kubernetes-project:1.9
           env:
             - name: PORT
               value: "3001"
