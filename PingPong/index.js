@@ -19,7 +19,7 @@ app.get("/", (_req, res) => {
 
     requests++;
     fs.writeFileSync(filePath, String(requests));
-    res.send(`pong ${requests}`);
+    res.send(requests);
 });
 
 app.listen(port, () => {

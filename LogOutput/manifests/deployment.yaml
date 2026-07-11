@@ -14,19 +14,11 @@ spec:
     spec:
       volumes:
         - name: shared-log
-          persistentVolumeClaim:
-            claimName: log-ping-pong-claim
       containers:
         - name: log-output-logger
           image: eetujukka/log-output-logger:1.2
-          volumeMounts:
-            - name: shared-log
-              mountPath: /usr/src/app/files
         - name: log-output-server
-          image: eetujukka/log-output-server:1.4
+          image: eetujukka/log-output-server:1.6
           env:
             - name: PORT
               value: "3002"
-          volumeMounts:
-            - name: shared-log
-              mountPath: /usr/src/app/files
