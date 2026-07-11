@@ -1,12 +1,25 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: devops-with-kubernetes-project-svc
+  name: devops-with-kubernetes-frontend-svc
 spec:
   type: ClusterIP
   selector:
     app: devops-with-kubernetes-project
   ports:
-    - port: 2345
+    - port: 8080
+      protocol: TCP
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-with-kubernetes-backend-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: devops-with-kubernetes-project
+  ports:
+    - port: 3001
       protocol: TCP
       targetPort: 3001

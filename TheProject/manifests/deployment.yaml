@@ -17,8 +17,13 @@ spec:
           persistentVolumeClaim:
             claimName: the-project-claim
       containers:
-        - name: devops-with-kubernetes-project
-          image: eetujukka/devops-with-kubernetes-project:1.9
+        - name: devops-with-kubernetes-frontend
+          image: eetujukka/devops-with-kubernetes-frontend:1.2
+          volumeMounts:
+            - name: image-volume
+              mountPath: /usr/src/app/files
+        - name: devops-with-kubernetes-backend
+          image: eetujukka/devops-with-kubernetes-backend:1.1
           env:
             - name: PORT
               value: "3001"
