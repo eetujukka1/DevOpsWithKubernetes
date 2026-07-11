@@ -21,3 +21,4 @@
 ### Chapter 3
 
 - [2.1](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/2.1/LogOutput)
+- [2.2](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/2.2/TheProject)
