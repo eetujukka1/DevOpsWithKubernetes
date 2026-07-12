@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingpong-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingpong
+  template:
+    metadata:
+      namespace: logger
+      labels:
+        app: pingpong
+    spec:
+      volumes:
+        - name: shared-log
+          persistentVolumeClaim:
+            claimName: log-ping-pong-claim
+      containers:
+        - name: pingpong
+          image: eetujukka/pingpong:1.12
+          env:
+            - name: PORT
+              value: "3002"
+          volumeMounts:
+            - name: shared-log
+              mountPath: /usr/src/app/files
