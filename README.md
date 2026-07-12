@@ -23,3 +23,4 @@
 - [2.1](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/2.1/LogOutput)
 - [2.2](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/2.2/TheProject)
 - [2.3](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/2.3/Logger)
+- [2.4](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/2.4/TheProject)
