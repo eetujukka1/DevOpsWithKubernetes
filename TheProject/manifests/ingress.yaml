@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: devops-with-kubernetes-project-ingress
+  namespace: the-project
 spec:
   rules:
   - http:

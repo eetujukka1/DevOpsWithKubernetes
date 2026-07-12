@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: devops-with-kubernetes-project-dep
+  namespace: the-project
 spec:
   replicas: 1
   selector:
@@ -15,7 +16,7 @@ spec:
       volumes:
         - name: image-volume
           persistentVolumeClaim:
-            claimName: the-project-claim
+            claimName: the-project-v2-claim
       containers:
         - name: devops-with-kubernetes-frontend
           image: eetujukka/devops-with-kubernetes-frontend:1.2
