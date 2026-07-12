@@ -14,12 +14,26 @@ spec:
         app: log-output
     spec:
       volumes:
-        - name: shared-log
+        - name: config-volume
+          configMap:
+            name: log-output-config-map
+            items:
+              - key: information
+                path: information
       containers:
         - name: log-output-logger
           image: eetujukka/log-output-logger:1.2
         - name: log-output-server
-          image: eetujukka/log-output-server:1.6
+          image: eetujukka/log-output-server:1.7
+          volumeMounts:
+          - name: config-volume
+            mountPath: /app/config/information
+            subPath: information
           env:
             - name: PORT
               value: "3002"
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config-map
+                  key: message

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pingpong-dep
+  namespace: logger
 spec:
   replicas: 1
   selector:
@@ -9,14 +10,13 @@ spec:
       app: pingpong
   template:
     metadata:
-      namespace: logger
       labels:
         app: pingpong
     spec:
       volumes:
         - name: shared-log
           persistentVolumeClaim:
-            claimName: log-ping-pong-claim
+            claimName: log-ping-pong-logger-claim
       containers:
         - name: pingpong
           image: eetujukka/pingpong:1.12
@@ -25,4 +25,4 @@ spec:
               value: "3002"
           volumeMounts:
             - name: shared-log
-              mountPath: /usr/src/app/files
+              mountPath: /app/files

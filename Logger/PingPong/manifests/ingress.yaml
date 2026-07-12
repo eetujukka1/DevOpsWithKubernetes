@@ -11,9 +11,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  namespace: logger
   name: pingpong-ingress
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: default-pingpong-strip-prefix@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: logger-pingpong-strip-prefix@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
