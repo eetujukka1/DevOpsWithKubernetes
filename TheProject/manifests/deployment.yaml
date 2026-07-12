@@ -17,17 +17,35 @@ spec:
         - name: image-volume
           persistentVolumeClaim:
             claimName: the-project-v2-claim
+        - name: app-config-volume
+          configMap:
+            name: log-output-config-map
       containers:
         - name: devops-with-kubernetes-frontend
-          image: eetujukka/devops-with-kubernetes-frontend:1.2
+          image: eetujukka/devops-with-kubernetes-frontend:1.3
+          command: ["sh", "-c"]
+          args:
+            - npm run preview -- --port ${PORT:-3000}
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config-map
+                  key: frontend.port
           volumeMounts:
             - name: image-volume
               mountPath: /usr/src/app/files
+            - name: app-config-volume
+              mountPath: /app/dist/config
+              readOnly: true
         - name: devops-with-kubernetes-backend
-          image: eetujukka/devops-with-kubernetes-backend:1.1
+          image: eetujukka/devops-with-kubernetes-backend:1.2
           env:
             - name: PORT
-              value: "3001"
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config-map
+                  key: backend.port
           volumeMounts:
             - name: image-volume
               mountPath: /usr/src/app/files

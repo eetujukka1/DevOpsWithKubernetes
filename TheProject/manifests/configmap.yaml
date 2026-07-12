@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-output-config-map
+  namespace: the-project
+data:
+  backend.port: "3001"
+  frontend.port: "3000"
+  frontend.apiBaseUrl: "/api"
+  picsum.url: "https://picsum.photos/seed/${seed}/1200/640"

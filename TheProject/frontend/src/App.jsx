@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 
-const API_BASE_URL = "/api";
+const DEFAULT_API_BASE_URL = "/api";
 const IMAGE_STORAGE_KEY = "todo-app-image-cache";
 const MAX_IMAGE_AGE_MS = 10 * 60 * 1000;
-const createImageUrl = () => {
+const DEFAULT_PICSUM_TEMPLATE = "https://picsum.photos/seed/${seed}/1200/640";
+
+const createImageUrl = (template = DEFAULT_PICSUM_TEMPLATE) => {
   const seed = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  return `https://picsum.photos/seed/${seed}/1200/640`;
+  return template.replace("${seed}", seed);
 };
 
 const readCachedImage = () => {
@@ -33,27 +35,51 @@ const readCachedImage = () => {
   }
 };
 
-export default function App() {
-  const [initialImage] = useState(() => {
-    const cachedImage = readCachedImage();
+const readConfigValue = async (path, fallbackValue) => {
+  try {
+    const response = await fetch(path, { cache: "no-store" });
+    if (!response.ok) {
+      return fallbackValue;
+    }
 
-    return {
-      hasCachedImage: Boolean(cachedImage),
-      url: cachedImage || createImageUrl(),
-    };
-  });
+    const value = (await response.text()).trim();
+    return value || fallbackValue;
+  } catch (_error) {
+    return fallbackValue;
+  }
+};
+
+export default function App() {
+  const [cachedImage] = useState(() => readCachedImage());
   const [todos, setTodos] = useState([]);
   const [todoText, setTodoText] = useState("");
-  const [imageUrl] = useState(initialImage.url);
+  const [apiBaseUrl, setApiBaseUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState(cachedImage || "");
   const [isLoadingTodos, setIsLoadingTodos] = useState(true);
   const [isSavingTodo, setIsSavingTodo] = useState(false);
-  const [isLoadingImage, setIsLoadingImage] = useState(!initialImage.hasCachedImage);
+  const [isLoadingImage, setIsLoadingImage] = useState(!cachedImage);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    const loadApiBaseUrl = async () => {
+      const configuredApiBaseUrl = await readConfigValue(
+        "/config/frontend.apiBaseUrl",
+        DEFAULT_API_BASE_URL,
+      );
+      setApiBaseUrl(configuredApiBaseUrl);
+    };
+
+    loadApiBaseUrl();
+  }, []);
+
+  useEffect(() => {
+    if (!apiBaseUrl) {
+      return;
+    }
+
     const loadTodos = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/todos`);
+        const response = await fetch(`${apiBaseUrl}/todos`);
         if (!response.ok) {
           throw new Error("Failed to load todos.");
         }
@@ -68,7 +94,20 @@ export default function App() {
     };
 
     loadTodos();
-  }, []);
+  }, [apiBaseUrl]);
+
+  useEffect(() => {
+    if (cachedImage) {
+      return;
+    }
+
+    const loadImage = async () => {
+      const template = await readConfigValue("/config/picsum.url", DEFAULT_PICSUM_TEMPLATE);
+      setImageUrl(createImageUrl(template));
+    };
+
+    loadImage();
+  }, [cachedImage]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -88,7 +127,7 @@ export default function App() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/todos`, {
+      const response = await fetch(`${apiBaseUrl || DEFAULT_API_BASE_URL}/todos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,22 +161,24 @@ export default function App() {
         </div>
 
         <div className="image-panel">
-          <img
-            className={isLoadingImage ? "is-hidden" : ""}
-            src={imageUrl}
-            alt="Random scenic placeholder"
-            onLoad={() => {
-              window.localStorage.setItem(
-                IMAGE_STORAGE_KEY,
-                JSON.stringify({ url: imageUrl, savedAt: Date.now() }),
-              );
-              setIsLoadingImage(false);
-            }}
-            onError={() => {
-              setIsLoadingImage(false);
-              setErrorMessage("Failed to load image.");
-            }}
-          />
+          {imageUrl ? (
+            <img
+              className={isLoadingImage ? "is-hidden" : ""}
+              src={imageUrl}
+              alt="Random scenic placeholder"
+              onLoad={() => {
+                window.localStorage.setItem(
+                  IMAGE_STORAGE_KEY,
+                  JSON.stringify({ url: imageUrl, savedAt: Date.now() }),
+                );
+                setIsLoadingImage(false);
+              }}
+              onError={() => {
+                setIsLoadingImage(false);
+                setErrorMessage("Failed to load image.");
+              }}
+            />
+          ) : null}
           {isLoadingImage ? <div className="image-placeholder">Loading image...</div> : null}
         </div>
       </section>
