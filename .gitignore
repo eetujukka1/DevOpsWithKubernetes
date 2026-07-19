@@ -1,3 +1,5 @@
+**/secret*.yaml
+!**/secret*.enc.yaml
 .env
 .idea
 practice
