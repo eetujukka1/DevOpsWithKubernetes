@@ -7,6 +7,10 @@ COPY package-lock.json .
 
 RUN npm ci --omit=dev
 
+COPY prisma ./prisma
 COPY index.js .
+COPY start.sh .
 
-CMD ["node", "index.js"]
+RUN npx prisma generate
+
+CMD ["sh", "./start.sh"]

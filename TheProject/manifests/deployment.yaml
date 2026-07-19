@@ -1,7 +1,7 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: devops-with-kubernetes-project-dep
+  name: devops-with-kubernetes-project-ss
   namespace: the-project
 spec:
   replicas: 1
@@ -19,7 +19,7 @@ spec:
             claimName: the-project-v2-claim
         - name: app-config-volume
           configMap:
-            name: log-output-config-map
+            name: the-project-config-map
       containers:
         - name: devops-with-kubernetes-frontend
           image: eetujukka/devops-with-kubernetes-frontend:1.3
@@ -30,7 +30,7 @@ spec:
             - name: PORT
               valueFrom:
                 configMapKeyRef:
-                  name: log-output-config-map
+                  name: the-project-config-map
                   key: frontend.port
           volumeMounts:
             - name: image-volume
@@ -39,13 +39,62 @@ spec:
               mountPath: /app/dist/config
               readOnly: true
         - name: devops-with-kubernetes-backend
-          image: eetujukka/devops-with-kubernetes-backend:1.2
+          image: eetujukka/devops-with-kubernetes-backend:1.3
           env:
             - name: PORT
               valueFrom:
                 configMapKeyRef:
-                  name: log-output-config-map
+                  name: the-project-config-map
                   key: backend.port
+            - name: PGHOST
+              value: "127.0.0.1"
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: postgres.database
+            - name: PGUSER
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: postgres.user
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: project-postgres-password
+                  key: POSTGRES_PASSWORD
           volumeMounts:
             - name: image-volume
               mountPath: /usr/src/app/files
+        - name: the-project-postgres
+          image: postgres:18.4-alpine3.24
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: postgres.database
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: postgres.user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: project-postgres-password
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: the-project-postgres-data-storage
+              mountPath: /var/lib/postgresql
+  volumeClaimTemplates:
+    - metadata:
+        name: the-project-postgres-data-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 1Gi
