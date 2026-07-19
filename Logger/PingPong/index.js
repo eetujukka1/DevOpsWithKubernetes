@@ -1,27 +1,41 @@
 import express from 'express';
-import fs from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
 const app = express();
 const port = process.env.PORT || 3000;
+const prisma = new PrismaClient();
 
-const directory = path.join('/', 'usr', 'src', 'app', 'files');
-const filePath = path.join(directory, 'pingpong.txt');
+app.get("/", async (_req, res) => {
+    try {
+        const result = await prisma.counter.upsert({
+            where: {
+                name: "pingpong",
+            },
+            update: {
+                value: {
+                    increment: 1,
+                },
+            },
+            create: {
+                name: "pingpong",
+                value: 1,
+            },
+        });
 
-fs.mkdirSync(directory, { recursive: true });
-
-app.get("/", (_req, res) => {
-    let requests = 0;
-
-    if (fs.existsSync(filePath)) {
-        requests = parseInt(fs.readFileSync(filePath, "utf8"), 10) || 0;
+        res.send(String(result.value));
+    } catch (error) {
+        console.error("Failed to update pingpong count", error);
+        res.status(500).send("database error");
     }
-
-    requests++;
-    fs.writeFileSync(filePath, String(requests));
-    res.send(requests);
 });
 
-app.listen(port, () => {
-    console.log(`HTTP server listening on port ${port}`);
-});
+prisma.$connect()
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`HTTP server listening on port ${port}`);
+        });
+    })
+    .catch((error) => {
+        console.error("Failed to connect to database", error);
+        process.exit(1);
+    });

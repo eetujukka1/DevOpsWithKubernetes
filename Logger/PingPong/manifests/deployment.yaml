@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: pingpong-dep
   namespace: logger
 spec:
+  serviceName: pingpong-svc
   replicas: 1
   selector:
     matchLabels:
@@ -13,16 +14,46 @@ spec:
       labels:
         app: pingpong
     spec:
-      volumes:
-        - name: shared-log
-          persistentVolumeClaim:
-            claimName: log-ping-pong-logger-claim
       containers:
         - name: pingpong
-          image: eetujukka/pingpong:1.12
+          image: eetujukka/pingpong:1.13
           env:
             - name: PORT
               value: "3002"
+            - name: PGHOST
+              value: "127.0.0.1"
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: "pingpong"
+            - name: PGUSER
+              value: "pingpong"
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pingpong-postgres-password
+                  key: POSTGRES_PASSWORD
+        - name: pingpong-postgres
+          image: postgres:18.4-alpine3.24
+          env:
+            - name: POSTGRES_DB
+              value: "pingpong"
+            - name: POSTGRES_USER
+              value: "pingpong"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pingpong-postgres-password
+                  key: POSTGRES_PASSWORD
           volumeMounts:
-            - name: shared-log
-              mountPath: /app/files
+            - name: pingpong-postgres-data-storage
+              mountPath: /var/lib/postgresql
+  volumeClaimTemplates:
+    - metadata:
+        name: pingpong-postgres-data-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 100Mi
