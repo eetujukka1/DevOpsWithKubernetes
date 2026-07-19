@@ -1,6 +1,7 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 
+const MAX_TODO_LENGTH = 2048;
 const port = Number(process.env.PORT) || 3000;
 const app = express();
 const prisma = new PrismaClient();
@@ -66,8 +67,8 @@ app.post("/api/todos", async (req, res, next) => {
     return res.status(400).json({ error: "Todo text is required." });
   }
 
-  if (text.length > 140) {
-    return res.status(400).json({ error: "Todo text must be 140 characters or less." });
+  if (text.length > MAX_TODO_LENGTH) {
+    return res.status(400).json({ error: `Todo text must be ${MAX_TODO_LENGTH} characters or less.` });
   }
 
   try {
