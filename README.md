@@ -34,3 +34,4 @@
 ### Chapter 4
 - [3.1](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.1/Logger)
 - [3.2](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.2/Logger)
+- [3.3](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.3/Logger)
