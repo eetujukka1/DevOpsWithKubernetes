@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: pingpong
-          image: eetujukka/pingpong:1.14
+          image: eetujukka/pingpong:1.15
           env:
             - name: PORT
               value: "3002"

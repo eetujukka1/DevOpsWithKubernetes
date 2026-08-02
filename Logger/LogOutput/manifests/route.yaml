@@ -11,6 +11,12 @@ spec:
         - path:
             type: PathPrefix
             value: /log-output
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
       backendRefs:
         - name: log-output-svc
           port: 2345

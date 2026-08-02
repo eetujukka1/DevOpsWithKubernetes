@@ -5,7 +5,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const prisma = new PrismaClient();
 
-app.get(["/", "/pingpong"], async (_req, res) => {
+app.get("/", async (_req, res) => {
     try {
         const result = await prisma.counter.upsert({
             where: {

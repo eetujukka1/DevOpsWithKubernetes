@@ -24,7 +24,7 @@ spec:
         - name: log-output-logger
           image: eetujukka/log-output-logger:1.2
         - name: log-output-server
-          image: eetujukka/log-output-server:1.8
+          image: eetujukka/log-output-server:1.9
           volumeMounts:
           - name: config-volume
             mountPath: /app/config/information
