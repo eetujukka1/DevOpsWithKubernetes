@@ -12,7 +12,7 @@ const filePath = path.join(directory, 'information');
 
 const string = crypto.randomUUID();
 
-app.get('/', async (_req, res) => {
+app.get(['/', '/log-output'], async (_req, res) => {
     const firstLine = `file content: ${readFileSync(filePath, 'utf8').trim()}`;
     const secondLine = `env variable: MESSAGE=${process.env.MESSAGE}`;
 
