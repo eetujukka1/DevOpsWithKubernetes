@@ -8,6 +8,7 @@ COPY package-lock.json .
 RUN npm ci --omit=dev
 
 COPY prisma ./prisma
+COPY src ./src
 COPY index.js .
 COPY start.sh .
 
