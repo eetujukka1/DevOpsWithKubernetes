@@ -82,6 +82,9 @@ jobs:
       - name: Deploy
         working-directory: TheProject/manifests
         run: |-
+          kubectl create namespace ${GITHUB_REF#refs/heads/} || true
+          kubectl config set-context --current --namespace=${GITHUB_REF#refs/heads/}
+          kustomize edit set namespace ${GITHUB_REF#refs/heads/}
           kustomize edit set image \
             eetujukka/devops-with-kubernetes-frontend="$FRONTEND_IMAGE_TAG" \
             eetujukka/devops-with-kubernetes-backend="$BACKEND_IMAGE_TAG"
