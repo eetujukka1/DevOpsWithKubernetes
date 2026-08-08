@@ -37,3 +37,4 @@
 - [3.3](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.3/Logger)
 - [3.4](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.4/Logger)
 - [3.5](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.5/TheProject)
+- [3.6](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.6/.github/workflows)
