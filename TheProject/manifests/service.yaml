@@ -17,6 +17,8 @@ kind: Service
 metadata:
   name: devops-with-kubernetes-backend-svc
   namespace: the-project
+  annotations:
+    cloud.google.com/backend-config: '{"default":"the-project-backend-config"}'
 spec:
   type: ClusterIP
   selector:

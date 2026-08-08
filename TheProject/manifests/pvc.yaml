@@ -4,7 +4,7 @@ metadata:
   name: the-project-v2-claim
   namespace: the-project
 spec:
-  storageClassName: the-project-v2-pv
+  storageClassName: standard-rwo
   accessModes:
     - ReadWriteOnce
   resources:
