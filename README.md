@@ -57,3 +57,4 @@ When considering managed vs self-hosted databases, several things should be take
 - Cons
   - Full control - while you are able to customize the DBMS to your specific needs, you are also responsible for backups, upgrades and other maintenance tasks.
   - Barrier to entry - managing your own database means that you will need to allocate resources to doing so, which can be a hard sell for resource-constrained organizations, for example startups.
+- [3.10](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.10/.github/workflows)
