@@ -86,6 +86,21 @@ jobs:
             --dry-run=client \
             --output yaml > TheProject/manifests/secret.yaml
 
+      - name: Create GCS credentials Secret
+        env:
+          GCS_SERVICE_ACCOUNT_KEY: ${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}
+        run: |-
+          set -euo pipefail
+          : "${GCS_SERVICE_ACCOUNT_KEY:?GCS_SERVICE_ACCOUNT_KEY secret is not configured}"
+          credentials_file="$(mktemp "$RUNNER_TEMP/gcs-key.XXXXXX.json")"
+          trap 'rm -f "$credentials_file"' EXIT
+          printf '%s' "$GCS_SERVICE_ACCOUNT_KEY" > "$credentials_file"
+          kubectl create secret generic project-gcs-key \
+            --namespace "$DEPLOY_NAMESPACE" \
+            --from-file=key.json="$credentials_file" \
+            --dry-run=client \
+            --output yaml | kubectl apply -f -
+
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v3
 
