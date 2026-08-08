@@ -1,0 +1,142 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: project-postgres-backup
+  namespace: the-project
+spec:
+  schedule: "0 0 * * *"
+  timeZone: Etc/UTC
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 3600
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 1800
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: project-postgres-backup
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: pg-dump
+              image: postgres:18.4-alpine3.24
+              command: ["/bin/sh", "-c"]
+              args:
+                - |-
+                  set -eu
+                  attempt=0
+                  until pg_isready --quiet; do
+                    attempt=$((attempt + 1))
+                    if [ "$attempt" -ge 30 ]; then
+                      echo "PostgreSQL did not become ready" >&2
+                      echo failed > /backup/status
+                      exit 1
+                    fi
+                    sleep 2
+                  done
+                  if pg_dump --format=plain --file=/backup/project.sql; then
+                    echo succeeded > /backup/status
+                  else
+                    status=$?
+                    rm -f /backup/project.sql
+                    echo failed > /backup/status
+                    exit "$status"
+                  fi
+              env:
+                - name: PGHOST
+                  value: devops-with-kubernetes-postgres-svc
+                - name: PGPORT
+                  value: "5432"
+                - name: PGDATABASE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: the-project-config-map
+                      key: postgres.database
+                - name: PGUSER
+                  valueFrom:
+                    configMapKeyRef:
+                      name: the-project-config-map
+                      key: postgres.user
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: project-postgres-password
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+            - name: upload-to-gcs
+              image: gcr.io/google.com/cloudsdktool/google-cloud-cli:stable
+              command: ["/bin/sh", "-c"]
+              args:
+                - |-
+                  set -eu
+                  until [ -f /backup/status ]; do
+                    sleep 2
+                  done
+                  if [ "$(cat /backup/status)" != "succeeded" ]; then
+                    echo "Database dump failed; skipping upload" >&2
+                    exit 1
+                  fi
+                  gcloud auth activate-service-account \
+                    --key-file="$GOOGLE_APPLICATION_CREDENTIALS" \
+                    --project="$GCP_PROJECT" \
+                    --quiet
+                  backup_name="${PGDATABASE}-$(date -u +%Y%m%dT%H%M%SZ).sql"
+                  gcloud storage cp \
+                    /backup/project.sql \
+                    "gs://${GCS_BUCKET}/${POD_NAMESPACE}/${backup_name}"
+              env:
+                - name: GCP_PROJECT
+                  value: dwk-gke-504310
+                - name: GCS_BUCKET
+                  value: dwk-gke-504310-the-project-backups
+                - name: PGDATABASE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: the-project-config-map
+                      key: postgres.database
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /var/secrets/google/key.json
+                - name: CLOUDSDK_CONFIG
+                  value: /tmp/gcloud
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+                  readOnly: true
+                - name: gcs-key
+                  mountPath: /var/secrets/google
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+          volumes:
+            - name: backup
+              emptyDir: {}
+            - name: gcs-key
+              secret:
+                secretName: project-gcs-key
+                items:
+                  - key: key.json
+                    path: key.json
