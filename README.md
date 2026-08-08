@@ -40,3 +40,20 @@
 - [3.6](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.6/.github/workflows)
 - [3.7](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.7/.github/workflows)
 - [3.8](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.8/.github/workflows)
+### Managed vs Self-hosted DBs
+When considering managed vs self-hosted databases, several things should be taken into consideration. The right solution is nuanced and depends on the use case, organization priorities, team capability and regulatory requirements.
+
+#### Managed
+- Pros
+  - Ease of management - you deploy it and it's there. The provider will usually take care of upgrades, backups etc. maintenance tasks, eliminating the need for additional infra resources from the development team's POV.
+- Cons
+  - Cost - managed solutions have to include the running costs of management as well as a healthy margin in the charged fee. At a certain scale, the cost of running your own infra may become more cost-effective.
+  - Regulatory requirements - in some environments, there may be regulatory requirements that require more control than many managed solutions can provide.
+
+#### Self-hosted
+- Pros
+  - Full control - you are in charge of what gets deployed, how it is configured. Valuable in environments with regulatory constraints and specialized technical needs.
+  - Cost at scale - although managed solutions are quite affordable even at moderately large scale, at a certain point running your own infra does become more cost-effective, benefiting from economies of scale.
+- Cons
+  - Full control - while you are able to customize the DBMS to your specific needs, you are also responsible for backups, upgrades and other maintenance tasks.
+  - Barrier to entry - managing your own database means that you will need to allocate resources to doing so, which can be a hard sell for resource-constrained organizations, for example startups.
