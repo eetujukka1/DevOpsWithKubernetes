@@ -50,6 +50,16 @@ jobs:
           project_id: '${{ env.PROJECT_ID }}'
           location: '${{ env.GKE_ZONE }}'
 
+      - name: 'Select Kubernetes namespace'
+        run: |-
+          if [ "$BRANCH" = "main" ]; then
+            DEPLOY_NAMESPACE="$NAMESPACE"
+          else
+            DEPLOY_NAMESPACE="${GITHUB_REF#refs/heads/}"
+            kubectl create namespace "$DEPLOY_NAMESPACE" || true
+          fi
+          echo "DEPLOY_NAMESPACE=$DEPLOY_NAMESPACE" >> "$GITHUB_ENV"
+
       - name: 'Form the image names'
         run: |-
           echo "FRONTEND_IMAGE_TAG=$REGISTRY/$PROJECT_ID/$REPOSITORY/$FRONTEND_IMAGE:$BRANCH-$GITHUB_SHA" >> "$GITHUB_ENV"
@@ -71,7 +81,7 @@ jobs:
         run: |-
           : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD secret is not configured}"
           kubectl create secret generic project-postgres-password \
-            --namespace "$NAMESPACE" \
+            --namespace "$DEPLOY_NAMESPACE" \
             --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
             --dry-run=client \
             --output yaml > TheProject/manifests/secret.yaml
@@ -82,12 +92,11 @@ jobs:
       - name: Deploy
         working-directory: TheProject/manifests
         run: |-
-          kubectl create namespace ${GITHUB_REF#refs/heads/} || true
-          kubectl config set-context --current --namespace=${GITHUB_REF#refs/heads/}
-          kustomize edit set namespace ${GITHUB_REF#refs/heads/}
+          kubectl config set-context --current --namespace="$DEPLOY_NAMESPACE"
+          kustomize edit set namespace "$DEPLOY_NAMESPACE"
           kustomize edit set image \
             eetujukka/devops-with-kubernetes-frontend="$FRONTEND_IMAGE_TAG" \
             eetujukka/devops-with-kubernetes-backend="$BACKEND_IMAGE_TAG"
           kustomize build . | kubectl apply -f -
-          kubectl rollout status statefulset/"$STATEFULSET" --namespace "$NAMESPACE"
-          kubectl get services --namespace "$NAMESPACE" -o wide
+          kubectl rollout status statefulset/"$STATEFULSET" --namespace "$DEPLOY_NAMESPACE"
+          kubectl get services --namespace "$DEPLOY_NAMESPACE" -o wide
