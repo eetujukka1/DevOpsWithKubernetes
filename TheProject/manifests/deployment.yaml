@@ -46,7 +46,7 @@ spec:
               mountPath: /app/dist/config
               readOnly: true
         - name: devops-with-kubernetes-backend
-          image: eetujukka/devops-with-kubernetes-backend:1.4
+          image: eetujukka/devops-with-kubernetes-backend:1.5
           resources:
             requests:
               cpu: 10m
@@ -91,6 +91,16 @@ spec:
                   key: loki.tenantId
             - name: LOKI_SERVICE_NAME
               value: "the-project-backend"
+            - name: NATS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: nats.url
+            - name: NATS_TODO_CREATED_SUBJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: nats.todoCreatedSubject
           livenessProbe:
             httpGet:
               path: /healthz

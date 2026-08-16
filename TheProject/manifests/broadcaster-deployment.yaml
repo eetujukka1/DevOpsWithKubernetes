@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-with-kubernetes-broadcaster
+  namespace: the-project
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: devops-with-kubernetes-broadcaster
+  template:
+    metadata:
+      labels:
+        app: devops-with-kubernetes-broadcaster
+    spec:
+      containers:
+        - name: devops-with-kubernetes-broadcaster
+          image: eetujukka/devops-with-kubernetes-broadcaster:1.2
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 96Mi
+          env:
+            - name: NATS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: nats.url
+            - name: NATS_TODO_CREATED_SUBJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: nats.todoCreatedSubject
+            - name: NATS_QUEUE_GROUP
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: nats.queueGroup
+            - name: BROADCASTER_LOG_FILE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-config-map
+                  key: broadcaster.logFilePath
+            - name: SLACK_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: project-postgres-password
+                  key: SLACK_WEBHOOK_URL
