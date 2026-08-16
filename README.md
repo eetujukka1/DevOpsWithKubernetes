@@ -64,3 +64,4 @@ When considering managed vs self-hosted databases, several things should be take
 
 ### Chapter 5
 - [4.1](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/4.1/Logger)
+- [4.2](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/4.2/TheProject)
