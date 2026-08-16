@@ -66,3 +66,4 @@ When considering managed vs self-hosted databases, several things should be take
 - [4.1](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/4.1/Logger)
 - [4.2](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/4.2/TheProject)
 - 4.3: sum(kube_pod_info{created_by_kind="StatefulSet", namespace="monitoring"})
+- [4.4](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/4.4/Logger)
