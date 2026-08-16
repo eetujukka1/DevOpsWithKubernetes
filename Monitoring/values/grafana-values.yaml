@@ -1,4 +1,4 @@
-adminPassword: admin
+adminPassword: supersalainen
 
 datasources:
   datasources.yaml:
