@@ -61,3 +61,6 @@ When considering managed vs self-hosted databases, several things should be take
 - [3.11](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/3.11/TheProject)
 - 3.12:
 <img width="1038" height="362" alt="Screenshot 2026-08-08 at 15 18 07" src="https://github.com/user-attachments/assets/589dcdd6-8893-43ee-83e1-2ca2472610f9" />
+
+### Chapter 5
+- [4.1](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/4.1/LogOutput)
