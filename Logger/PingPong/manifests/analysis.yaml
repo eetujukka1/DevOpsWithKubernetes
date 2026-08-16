@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: cpu-usage
+  namespace: logger
+spec:
+  metrics:
+    - name: cpu-usage
+      initialDelay: 2m
+      successCondition: result[0] < 0.05
+      provider:
+        prometheus:
+          address: http://prom-prometheus-server.monitoring.svc.cluster.local
+          query: |
+            sum(
+              rate(container_cpu_usage_seconds_total{
+                namespace="logger",
+                container!="",
+                container!="POD"
+              }[5m])
+            )

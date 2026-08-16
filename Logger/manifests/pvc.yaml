@@ -2,8 +2,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: log-ping-pong-claim
+  namespace: logger
 spec:
-  storageClassName: log-ping-pong-pv
+  storageClassName: standard-rwo
   accessModes:
     - ReadWriteOnce
   resources:

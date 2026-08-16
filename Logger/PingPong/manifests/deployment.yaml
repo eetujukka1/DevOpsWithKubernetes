@@ -1,19 +1,32 @@
-apiVersion: apps/v1
-kind: StatefulSet
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: pingpong-dep
   namespace: logger
 spec:
-  serviceName: pingpong-svc
   replicas: 1
   selector:
     matchLabels:
       app: pingpong
+  strategy:
+    canary:
+      steps:
+        - setWeight: 25
+        - analysis:
+            templates:
+              - templateName: cpu-usage
+        - setWeight: 50
+        - pause:
+            duration: 30s
   template:
     metadata:
       labels:
         app: pingpong
     spec:
+      volumes:
+        - name: pingpong-postgres-data-storage
+          persistentVolumeClaim:
+            claimName: log-ping-pong-claim
       containers:
         - name: pingpong
           image: eetujukka/pingpong:1.17
@@ -54,11 +67,3 @@ spec:
           volumeMounts:
             - name: pingpong-postgres-data-storage
               mountPath: /var/lib/postgresql
-  volumeClaimTemplates:
-    - metadata:
-        name: pingpong-postgres-data-storage
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 100Mi
