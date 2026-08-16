@@ -1,4 +1,6 @@
 const prisma = require("../db/prisma");
+const logger = require("../logger");
+const { publishTodoCreated } = require("../services/natsService");
 
 const MAX_TODO_LENGTH = 140;
 
@@ -37,7 +39,13 @@ const createTodo = async (req, res, next) => {
       data: { text },
     });
 
-    return res.status(201).json(mapTodo(todo));
+    const mappedTodo = mapTodo(todo);
+
+    publishTodoCreated(mappedTodo).catch((error) => {
+      logger.warn("Failed to publish todo-created event", { error, todoId: mappedTodo.id });
+    });
+
+    return res.status(201).json(mappedTodo);
   } catch (error) {
     return next(error);
   }

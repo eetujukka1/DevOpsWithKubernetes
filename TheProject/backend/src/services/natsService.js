@@ -2,7 +2,7 @@ const { connect } = require("@nats-io/transport-node");
 
 const logger = require("../logger");
 
-const DEFAULT_NATS_URL = "nats://nats.nats.svc.cluster.local:4222";
+const DEFAULT_NATS_URL = "nats://my-nats.nats.svc.cluster.local:4222";
 const DEFAULT_TODO_CREATED_SUBJECT = "todos.created";
 const DEFAULT_CONNECT_TIMEOUT_MS = 2000;
 
