@@ -28,6 +28,10 @@ input {
   font: inherit;
 }
 
+input[type="checkbox"] {
+  accent-color: #f4b24d;
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -210,6 +214,30 @@ img {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(246, 243, 235, 0.08);
+}
+
+.todo-list label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.todo-list input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0 0;
+}
+
+.todo-list span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.todo-list li.is-done span {
+  color: rgba(246, 243, 235, 0.54);
+  text-decoration: line-through;
 }
 
 .sr-only {

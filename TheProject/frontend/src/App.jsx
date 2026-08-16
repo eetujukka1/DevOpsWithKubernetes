@@ -57,6 +57,7 @@ export default function App() {
   const [imageUrl, setImageUrl] = useState(cachedImage || "");
   const [isLoadingTodos, setIsLoadingTodos] = useState(true);
   const [isSavingTodo, setIsSavingTodo] = useState(false);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState(() => new Set());
   const [isDisablingLiveness, setIsDisablingLiveness] = useState(false);
   const [isLoadingImage, setIsLoadingImage] = useState(!cachedImage);
   const [errorMessage, setErrorMessage] = useState("");
@@ -148,6 +149,38 @@ export default function App() {
       setErrorMessage(error.message || "Failed to save todo.");
     } finally {
       setIsSavingTodo(false);
+    }
+  };
+
+  const handleToggleDone = async (todo, done) => {
+    setUpdatingTodoIds((currentIds) => new Set(currentIds).add(todo.id));
+    setErrorMessage("");
+
+    try {
+      const response = await fetch(`${apiBaseUrl || DEFAULT_API_BASE_URL}/todos/${todo.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ done }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to update todo.");
+      }
+
+      setTodos((currentTodos) =>
+        currentTodos.map((currentTodo) => (currentTodo.id === payload.id ? payload : currentTodo)),
+      );
+    } catch (error) {
+      setErrorMessage(error.message || "Failed to update todo.");
+    } finally {
+      setUpdatingTodoIds((currentIds) => {
+        const nextIds = new Set(currentIds);
+        nextIds.delete(todo.id);
+        return nextIds;
+      });
     }
   };
 
@@ -249,8 +282,16 @@ export default function App() {
           ) : (
             <ul className="todo-list">
               {todos.map((todo) => (
-                <li key={todo.id}>
-                  <span>{todo.text}</span>
+                <li className={todo.done ? "is-done" : ""} key={todo.id}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(todo.done)}
+                      disabled={updatingTodoIds.has(todo.id)}
+                      onChange={(event) => handleToggleDone(todo, event.target.checked)}
+                    />
+                    <span>{todo.text}</span>
+                  </label>
                 </li>
               ))}
             </ul>

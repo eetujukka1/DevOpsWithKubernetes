@@ -5,6 +5,7 @@ const MAX_TODO_LENGTH = 140;
 const mapTodo = (todo) => ({
   id: todo.id,
   text: todo.text,
+  done: todo.done,
   createdAt: todo.createdAt.toISOString(),
 });
 
@@ -42,8 +43,40 @@ const createTodo = async (req, res, next) => {
   }
 };
 
+const updateTodo = async (req, res, next) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ error: "Todo id must be a positive integer." });
+  }
+
+  if (typeof req.body?.done !== "boolean") {
+    return res.status(400).json({ error: "Todo done status is required." });
+  }
+
+  try {
+    const existingTodo = await prisma.todo.findUnique({
+      where: { id },
+    });
+
+    if (!existingTodo) {
+      return res.status(404).json({ error: "Todo not found." });
+    }
+
+    const todo = await prisma.todo.update({
+      where: { id },
+      data: { done: req.body.done },
+    });
+
+    return res.json(mapTodo(todo));
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   createTodo,
   listTodos,
   mapTodo,
+  updateTodo,
 };
