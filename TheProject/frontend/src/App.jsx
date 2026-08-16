@@ -57,8 +57,10 @@ export default function App() {
   const [imageUrl, setImageUrl] = useState(cachedImage || "");
   const [isLoadingTodos, setIsLoadingTodos] = useState(true);
   const [isSavingTodo, setIsSavingTodo] = useState(false);
+  const [isDisablingLiveness, setIsDisablingLiveness] = useState(false);
   const [isLoadingImage, setIsLoadingImage] = useState(!cachedImage);
   const [errorMessage, setErrorMessage] = useState("");
+  const [livenessMessage, setLivenessMessage] = useState("");
 
   useEffect(() => {
     const loadApiBaseUrl = async () => {
@@ -149,6 +151,28 @@ export default function App() {
     }
   };
 
+  const handleDisableLiveness = async () => {
+    setIsDisablingLiveness(true);
+    setLivenessMessage("");
+
+    try {
+      const response = await fetch(`${apiBaseUrl || DEFAULT_API_BASE_URL}/health/disable`, {
+        method: "POST",
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to disable liveness.");
+      }
+
+      setLivenessMessage("Liveness disabled.");
+    } catch (error) {
+      setLivenessMessage(error.message || "Failed to disable liveness.");
+    } finally {
+      setIsDisablingLiveness(false);
+    }
+  };
+
   return (
     <main className="page-shell">
       <section className="hero-card">
@@ -231,6 +255,23 @@ export default function App() {
               ))}
             </ul>
           )}
+        </article>
+
+        <article className="panel">
+          <div className="panel-heading">
+            <h2>Kubernetes playground</h2>
+          </div>
+
+          <button
+            className="danger-button"
+            type="button"
+            disabled={isDisablingLiveness}
+            onClick={handleDisableLiveness}
+          >
+            {isDisablingLiveness ? "Disabling..." : "Disable liveness"}
+          </button>
+
+          {livenessMessage ? <p className="state-copy">{livenessMessage}</p> : null}
         </article>
       </section>
     </main>

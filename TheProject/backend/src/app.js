@@ -23,6 +23,7 @@ const createApp = () => {
   });
 
   app.use("/healthz", healthRouter);
+  app.use("/api/health", healthRouter);
   app.use("/api/todos", todoRouter);
 
   app.use((error, _req, res, _next) => {

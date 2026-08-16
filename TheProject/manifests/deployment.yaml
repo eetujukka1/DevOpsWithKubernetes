@@ -91,6 +91,14 @@ spec:
                   key: loki.tenantId
             - name: LOKI_SERVICE_NAME
               value: "the-project-backend"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           volumeMounts:
             - name: image-volume
               mountPath: /usr/src/app/files
