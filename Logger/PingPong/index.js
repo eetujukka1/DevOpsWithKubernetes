@@ -29,6 +29,31 @@ app.get("/", async (_req, res) => {
     }
 });
 
+app.get("/count", async (_req, res) => {
+    try {
+        const counter = await prisma.counter.findUnique({
+            where: {
+                name: "pingpong",
+            },
+        });
+
+        res.send(String(counter?.value ?? 0));
+    } catch (error) {
+        console.error("Failed to read pingpong count", error);
+        res.status(500).send("database error");
+    }
+});
+
+app.get("/healthz", async (_req, res) => {
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        res.sendStatus(200);
+    } catch (error) {
+        console.error("Database readiness check failed", error);
+        res.sendStatus(503);
+    }
+});
+
 prisma.$connect()
     .then(() => {
         app.listen(port, () => {

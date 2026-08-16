@@ -24,7 +24,13 @@ spec:
         - name: log-output-logger
           image: eetujukka/log-output-logger:1.2
         - name: log-output-server
-          image: eetujukka/log-output-server:1.9
+          image: eetujukka/log-output-server:1.10
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            httpGet:
+              path: /healthz
+              port: 3002
           volumeMounts:
           - name: config-volume
             mountPath: /app/config/information
@@ -32,6 +38,8 @@ spec:
           env:
             - name: PORT
               value: "3002"
+            - name: PINGPONG_URL
+              value: "http://pingpong-svc:6789"
             - name: MESSAGE
               valueFrom:
                 configMapKeyRef:

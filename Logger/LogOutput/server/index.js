@@ -6,6 +6,9 @@ import path from 'path';
 
 const app = express();
 const port = process.env.PORT || 3000;
+const pingPongUrl = process.env.PINGPONG_URL || 'http://pingpong-svc:6789';
+const pingPongRootUrl = new URL('/', pingPongUrl).toString();
+const pingPongCountUrl = new URL('/count', pingPongUrl).toString();
 
 const directory = path.join('/', 'app', 'config');
 const filePath = path.join(directory, 'information');
@@ -19,13 +22,29 @@ app.get('/', async (_req, res) => {
     const timestamp = new Date().toISOString();
     const thirdLine = `${timestamp} ${string}`;
 
-    const result = await axios.get('http://pingpong-svc:6789');
+    const result = await axios.get(pingPongRootUrl);
 
     const fourthLine = `Ping / Pongs: ${result.data}`;
 
     res.type('text/plain').send(`${firstLine}\n${secondLine}\n${thirdLine}\n${fourthLine}`);
 });
 
+app.get('/healthz', async (_req, res) => {
+    try {
+        const result = await axios.get(pingPongCountUrl, { timeout: 2000 });
+        const body = String(result.data).trim();
+
+        if (result.status === 200 && body.length > 0) {
+            res.sendStatus(200);
+            return;
+        }
+
+        res.sendStatus(503);
+    } catch (error) {
+        console.error('PingPong readiness check failed', error.message);
+        res.sendStatus(503);
+    }
+});
 
 app.listen(port, () => {
   console.log(`HTTP server listening on port ${port}`);
