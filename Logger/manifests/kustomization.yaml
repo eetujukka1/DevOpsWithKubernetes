@@ -17,10 +17,10 @@ resources:
 images:
 - name: eetujukka/log-output-logger
   newName: eetujukka/log-output-logger
-  newTag: 976173166995e9a60360e9acf6eb531467bf603d
+  newTag: f70603e20a86832d24f1402945fc6c2553a876c6
 - name: eetujukka/log-output-server
   newName: eetujukka/log-output-server
-  newTag: 976173166995e9a60360e9acf6eb531467bf603d
+  newTag: f70603e20a86832d24f1402945fc6c2553a876c6
 - name: eetujukka/pingpong
   newName: eetujukka/pingpong
-  newTag: 976173166995e9a60360e9acf6eb531467bf603d
+  newTag: f70603e20a86832d24f1402945fc6c2553a876c6
