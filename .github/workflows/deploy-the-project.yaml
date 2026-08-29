@@ -2,10 +2,10 @@ name: Release the project
 
 on:
   push:
-    paths:
-      - '.github/workflows/deploy-the-project.yaml'
-      - 'TheProject/**'
-      - '!TheProject/manifests/kustomization.yaml'
+    branches:
+      - main
+    tags:
+      - '*'
 
 concurrency:
   group: kustomize-release-${{ github.ref }}
@@ -21,10 +21,12 @@ env:
   REPOSITORY: devops-with-kubernetes
   FRONTEND_IMAGE: devops-with-kubernetes-frontend
   BACKEND_IMAGE: devops-with-kubernetes-backend
+  RELEASE_BRANCH: main
 
 jobs:
   build-publish-deploy:
     name: Build, Publish and Release
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     environment: Deploy
 
@@ -32,7 +34,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.ref }}
+
+      - name: Select deployment target
+        run: |-
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            echo "DEPLOY_ENV=prod" >> "$GITHUB_ENV"
+            echo "KUSTOMIZE_DIR=TheProject/manifests/layers/prod" >> "$GITHUB_ENV"
+          else
+            echo "DEPLOY_ENV=staging" >> "$GITHUB_ENV"
+            echo "KUSTOMIZE_DIR=TheProject/manifests/layers/staging" >> "$GITHUB_ENV"
+          fi
 
       - uses: google-github-actions/auth@v3
         with:
@@ -66,18 +78,24 @@ jobs:
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v3
 
+      - name: Checkout release branch for production manifest
+        if: github.ref_type == 'tag'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_BRANCH }}
+
       - name: Use right image
-        working-directory: TheProject/manifests
+        working-directory: ${{ env.KUSTOMIZE_DIR }}
         run: |-
           kustomize edit set image \
             eetujukka/devops-with-kubernetes-frontend="$FRONTEND_IMAGE_TAG" \
             eetujukka/devops-with-kubernetes-backend="$BACKEND_IMAGE_TAG"
 
       - name: Rebase release changes
-        run: git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+        run: git pull --rebase --autostash origin "$RELEASE_BRANCH"
 
       - name: commit kustomization.yaml to GitHub
         uses: EndBug/add-and-commit@v10
         with:
-          add: 'TheProject/manifests/kustomization.yaml'
-          message: New project version released ${{ github.sha }}
+          add: '${{ env.KUSTOMIZE_DIR }}/kustomization.yaml'
+          message: New project ${{ env.DEPLOY_ENV }} version released ${{ github.sha }}

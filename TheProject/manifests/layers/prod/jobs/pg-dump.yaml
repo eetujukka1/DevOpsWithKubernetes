@@ -2,7 +2,6 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: project-postgres-backup
-  namespace: the-project
 spec:
   schedule: "0 0 * * *"
   timeZone: Etc/UTC

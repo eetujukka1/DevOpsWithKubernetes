@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: devops-with-kubernetes-broadcaster
-  namespace: the-project
 spec:
   replicas: 6
   selector:
@@ -44,8 +43,3 @@ spec:
                 configMapKeyRef:
                   name: the-project-config-map
                   key: broadcaster.logFilePath
-            - name: SLACK_WEBHOOK_URL
-              valueFrom:
-                secretKeyRef:
-                  name: project-postgres-password
-                  key: SLACK_WEBHOOK_URL

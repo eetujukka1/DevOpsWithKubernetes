@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-with-kubernetes-broadcaster
+spec:
+  template:
+    spec:
+      containers:
+        - name: devops-with-kubernetes-broadcaster
+          env:
+            - name: SLACK_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: project-postgres-password
+                  key: SLACK_WEBHOOK_URL
