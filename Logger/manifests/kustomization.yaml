@@ -11,7 +11,6 @@ resources:
 - pingpong-analysis.yaml
 - pingpong-deployment.yaml
 - pingpong-route.yaml
-- pingpong-secret.yaml
 - pingpong-service.yaml
 - pv.yaml
 - pvc.yaml
