@@ -2,6 +2,14 @@ name: Release the project
 
 on:
   push:
+    paths:
+      - '.github/workflows/deploy-the-project.yaml'
+      - 'TheProject/**'
+      - '!TheProject/manifests/kustomization.yaml'
+
+concurrency:
+  group: kustomize-release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -23,6 +31,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
 
       - uses: google-github-actions/auth@v3
         with:
@@ -62,6 +72,9 @@ jobs:
           kustomize edit set image \
             eetujukka/devops-with-kubernetes-frontend="$FRONTEND_IMAGE_TAG" \
             eetujukka/devops-with-kubernetes-backend="$BACKEND_IMAGE_TAG"
+
+      - name: Rebase release changes
+        run: git pull --rebase --autostash origin "$GITHUB_REF_NAME"
 
       - name: commit kustomization.yaml to GitHub
         uses: EndBug/add-and-commit@v10

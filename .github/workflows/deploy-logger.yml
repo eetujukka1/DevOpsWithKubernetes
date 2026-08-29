@@ -2,6 +2,17 @@ name: Release logger
 
 on:
   push:
+    paths:
+      - '.github/workflows/deploy-logger.yml'
+      - 'Logger/**'
+      - '!Logger/manifests/kustomization.yaml'
+
+concurrency:
+  group: kustomize-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
 
 env:
   DOCKERHUB_NAMESPACE: eetujukka
@@ -18,6 +29,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v4
@@ -46,6 +59,9 @@ jobs:
             "$DOCKERHUB_NAMESPACE/$PINGPONG_IMAGE=$DOCKERHUB_NAMESPACE/$PINGPONG_IMAGE:$GITHUB_SHA" \
             "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_SERVER_IMAGE=$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_SERVER_IMAGE:$GITHUB_SHA" \
             "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_LOGGER_IMAGE=$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_LOGGER_IMAGE:$GITHUB_SHA"
+
+      - name: Rebase release changes
+        run: git pull --rebase --autostash origin "$GITHUB_REF_NAME"
 
       - name: commit kustomization.yaml to GitHub
         uses: EndBug/add-and-commit@v10
