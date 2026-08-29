@@ -9,5 +9,4 @@ resources:
 - jobs/pg-dump.yaml
 - namespace.yaml
 - pvc.yaml
-- secret.yaml
 - service.yaml

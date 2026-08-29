@@ -1,27 +1,22 @@
-name: Release application
+name: Release the project
 
 on:
   push:
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: dwk-cluster
-  GKE_ZONE: europe-north1-b
   REGISTRY: europe-north1-docker.pkg.dev
   REPOSITORY: devops-with-kubernetes
   FRONTEND_IMAGE: devops-with-kubernetes-frontend
   BACKEND_IMAGE: devops-with-kubernetes-backend
-  STATEFULSET: devops-with-kubernetes-project-ss
-  NAMESPACE: the-project
-  BRANCH: ${{ github.ref_name }}
 
 jobs:
   build-publish-deploy:
-    name: Build, Publish and Deploy
+    name: Build, Publish and Release
     runs-on: ubuntu-latest
     environment: Deploy
 
@@ -43,27 +38,10 @@ jobs:
       - name: 'Configure Docker authentication'
         run: gcloud --quiet auth configure-docker "$REGISTRY"
 
-      - name: 'Get GKE credentials'
-        uses: 'google-github-actions/get-gke-credentials@v3'
-        with:
-          cluster_name: '${{ env.GKE_CLUSTER }}'
-          project_id: '${{ env.PROJECT_ID }}'
-          location: '${{ env.GKE_ZONE }}'
-
-      - name: 'Select Kubernetes namespace'
-        run: |-
-          if [ "$BRANCH" = "main" ]; then
-            DEPLOY_NAMESPACE="$NAMESPACE"
-          else
-            DEPLOY_NAMESPACE="${GITHUB_REF#refs/heads/}"
-            kubectl create namespace "$DEPLOY_NAMESPACE" || true
-          fi
-          echo "DEPLOY_NAMESPACE=$DEPLOY_NAMESPACE" >> "$GITHUB_ENV"
-
       - name: 'Form the image names'
         run: |-
-          echo "FRONTEND_IMAGE_TAG=$REGISTRY/$PROJECT_ID/$REPOSITORY/$FRONTEND_IMAGE:$BRANCH-$GITHUB_SHA" >> "$GITHUB_ENV"
-          echo "BACKEND_IMAGE_TAG=$REGISTRY/$PROJECT_ID/$REPOSITORY/$BACKEND_IMAGE:$BRANCH-$GITHUB_SHA" >> "$GITHUB_ENV"
+          echo "FRONTEND_IMAGE_TAG=$REGISTRY/$PROJECT_ID/$REPOSITORY/$FRONTEND_IMAGE:$GITHUB_SHA" >> "$GITHUB_ENV"
+          echo "BACKEND_IMAGE_TAG=$REGISTRY/$PROJECT_ID/$REPOSITORY/$BACKEND_IMAGE:$GITHUB_SHA" >> "$GITHUB_ENV"
 
       - name: Build
         run: |-
@@ -75,43 +53,18 @@ jobs:
           docker push "$FRONTEND_IMAGE_TAG"
           docker push "$BACKEND_IMAGE_TAG"
 
-      - name: Generate Kubernetes Secret
-        env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        run: |-
-          : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD secret is not configured}"
-          kubectl create secret generic project-postgres-password \
-            --namespace "$DEPLOY_NAMESPACE" \
-            --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
-            --dry-run=client \
-            --output yaml > TheProject/manifests/secret.yaml
-
-      - name: Create GCS credentials Secret
-        env:
-          GCS_SERVICE_ACCOUNT_KEY: ${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}
-        run: |-
-          set -euo pipefail
-          : "${GCS_SERVICE_ACCOUNT_KEY:?GCS_SERVICE_ACCOUNT_KEY secret is not configured}"
-          credentials_file="$(mktemp "$RUNNER_TEMP/gcs-key.XXXXXX.json")"
-          trap 'rm -f "$credentials_file"' EXIT
-          printf '%s' "$GCS_SERVICE_ACCOUNT_KEY" > "$credentials_file"
-          kubectl create secret generic project-gcs-key \
-            --namespace "$DEPLOY_NAMESPACE" \
-            --from-file=key.json="$credentials_file" \
-            --dry-run=client \
-            --output yaml | kubectl apply -f -
-
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v3
 
-      - name: Deploy
+      - name: Use right image
         working-directory: TheProject/manifests
         run: |-
-          kubectl config set-context --current --namespace="$DEPLOY_NAMESPACE"
-          kustomize edit set namespace "$DEPLOY_NAMESPACE"
           kustomize edit set image \
             eetujukka/devops-with-kubernetes-frontend="$FRONTEND_IMAGE_TAG" \
             eetujukka/devops-with-kubernetes-backend="$BACKEND_IMAGE_TAG"
-          kustomize build . | kubectl apply -f -
-          kubectl rollout status statefulset/"$STATEFULSET" --namespace "$DEPLOY_NAMESPACE"
-          kubectl get services --namespace "$DEPLOY_NAMESPACE" -o wide
+
+      - name: commit kustomization.yaml to GitHub
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: 'TheProject/manifests/kustomization.yaml'
+          message: New project version released ${{ github.sha }}
