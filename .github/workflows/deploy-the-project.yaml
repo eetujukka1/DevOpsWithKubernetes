@@ -12,13 +12,15 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   REGISTRY: europe-north1-docker.pkg.dev
   REPOSITORY: devops-with-kubernetes
+  CONFIG_REPOSITORY: eetujukka1/DevOpsWithKubernetes-TheProject-Config
+  CONFIG_REPOSITORY_PATH: the-project-config
   FRONTEND_IMAGE: devops-with-kubernetes-frontend
   BACKEND_IMAGE: devops-with-kubernetes-backend
   RELEASE_BRANCH: main
@@ -40,10 +42,10 @@ jobs:
         run: |-
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then
             echo "DEPLOY_ENV=prod" >> "$GITHUB_ENV"
-            echo "KUSTOMIZE_DIR=TheProject/manifests/layers/prod" >> "$GITHUB_ENV"
+            echo "KUSTOMIZE_DIR=layers/prod" >> "$GITHUB_ENV"
           else
             echo "DEPLOY_ENV=staging" >> "$GITHUB_ENV"
-            echo "KUSTOMIZE_DIR=TheProject/manifests/layers/staging" >> "$GITHUB_ENV"
+            echo "KUSTOMIZE_DIR=layers/staging" >> "$GITHUB_ENV"
           fi
 
       - uses: google-github-actions/auth@v3
@@ -78,24 +80,34 @@ jobs:
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v3
 
-      - name: Checkout release branch for production manifest
-        if: github.ref_type == 'tag'
+      - name: Checkout deployment config
         uses: actions/checkout@v6
         with:
+          repository: ${{ env.CONFIG_REPOSITORY }}
+          ssh-key: ${{ secrets.CONFIG_REPO_DEPLOY_KEY }}
+          path: ${{ env.CONFIG_REPOSITORY_PATH }}
           ref: ${{ env.RELEASE_BRANCH }}
 
       - name: Use right image
-        working-directory: ${{ env.KUSTOMIZE_DIR }}
+        working-directory: ${{ env.CONFIG_REPOSITORY_PATH }}/${{ env.KUSTOMIZE_DIR }}
         run: |-
           kustomize edit set image \
             eetujukka/devops-with-kubernetes-frontend="$FRONTEND_IMAGE_TAG" \
             eetujukka/devops-with-kubernetes-backend="$BACKEND_IMAGE_TAG"
 
       - name: Rebase release changes
+        working-directory: ${{ env.CONFIG_REPOSITORY_PATH }}
         run: git pull --rebase --autostash origin "$RELEASE_BRANCH"
 
-      - name: commit kustomization.yaml to GitHub
-        uses: EndBug/add-and-commit@v10
-        with:
-          add: '${{ env.KUSTOMIZE_DIR }}/kustomization.yaml'
-          message: New project ${{ env.DEPLOY_ENV }} version released ${{ github.sha }}
+      - name: Commit kustomization.yaml to deployment config
+        working-directory: ${{ env.CONFIG_REPOSITORY_PATH }}
+        run: |-
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$KUSTOMIZE_DIR/kustomization.yaml"
+          if git diff --cached --quiet; then
+            echo "No manifest changes to commit"
+            exit 0
+          fi
+          git commit -m "New project $DEPLOY_ENV version released $GITHUB_SHA"
+          git push origin "HEAD:$RELEASE_BRANCH"
