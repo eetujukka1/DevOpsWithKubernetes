@@ -3,6 +3,15 @@ kind: Kustomization
 namespace: logger
 resources:
 - gateway.yaml
+- log-output-configmap.yaml
+- log-output-deployment.yaml
+- log-output-route.yaml
+- log-output-service.yaml
 - namespace.yaml
+- pingpong-analysis.yaml
+- pingpong-deployment.yaml
+- pingpong-route.yaml
+- pingpong-secret.yaml
+- pingpong-service.yaml
 - pv.yaml
 - pvc.yaml
