@@ -1,5 +1,5 @@
-**/secret*.yaml
-!**/secret*.enc.yaml
+**/*secret*.yaml
+!**/*secret*.enc.yaml
 .env
 key.json
 .idea
