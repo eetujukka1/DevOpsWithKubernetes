@@ -2,15 +2,15 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: the-project-prod
 resources:
-  - ../../base
-  - namespace.yaml
-  - jobs/pg-dump.yaml
+- ../../base
+- namespace.yaml
+- jobs/pg-dump.yaml
 patches:
-  - path: broadcaster-slack-webhook-patch.yaml
+- path: broadcaster-slack-webhook-patch.yaml
 images:
-  - name: eetujukka/devops-with-kubernetes-backend
-    newName: europe-north1-docker.pkg.dev/dwk-gke-504310/devops-with-kubernetes/devops-with-kubernetes-backend
-    newTag: 6638a09b47e192da350fdfe130861862937ffef3
-  - name: eetujukka/devops-with-kubernetes-frontend
-    newName: europe-north1-docker.pkg.dev/dwk-gke-504310/devops-with-kubernetes/devops-with-kubernetes-frontend
-    newTag: 6638a09b47e192da350fdfe130861862937ffef3
+- name: eetujukka/devops-with-kubernetes-backend
+  newName: europe-north1-docker.pkg.dev/dwk-gke-504310/devops-with-kubernetes/devops-with-kubernetes-backend
+  newTag: bfc0245c66cf88be968c3253ef4852e46f441631
+- name: eetujukka/devops-with-kubernetes-frontend
+  newName: europe-north1-docker.pkg.dev/dwk-gke-504310/devops-with-kubernetes/devops-with-kubernetes-frontend
+  newTag: bfc0245c66cf88be968c3253ef4852e46f441631
