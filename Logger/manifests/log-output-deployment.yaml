@@ -4,7 +4,7 @@ metadata:
   name: log-output-dep
   namespace: logger
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: log-output
