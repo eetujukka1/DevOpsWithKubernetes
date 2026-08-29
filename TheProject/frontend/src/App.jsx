@@ -213,7 +213,7 @@ export default function App() {
           <p className="eyebrow">DevOps With Kubernetes</p>
           <h1>Todo dashboard</h1>
           <p className="lede">
-            The frontend now runs as a Vite React app and persists todos through the backend API.
+            The frontend runs as a Vite React app and ships through the Argo release flow.
           </p>
         </div>
 
