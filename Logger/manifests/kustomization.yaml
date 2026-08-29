@@ -14,3 +14,13 @@ resources:
 - pingpong-service.yaml
 - pv.yaml
 - pvc.yaml
+images:
+- name: eetujukka/log-output-logger
+  newName: eetujukka/log-output-logger
+  newTag: 61f941971ad25c202ddcfb924c30d6db4db434b7
+- name: eetujukka/log-output-server
+  newName: eetujukka/log-output-server
+  newTag: 61f941971ad25c202ddcfb924c30d6db4db434b7
+- name: eetujukka/pingpong
+  newName: eetujukka/pingpong
+  newTag: 61f941971ad25c202ddcfb924c30d6db4db434b7
