@@ -80,3 +80,4 @@ When considering managed vs self-hosted databases, several things should be take
 - [5.1](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/5.1/DummySite)
 - [5.2](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/5.2/IstioSampleApplication)
 - [5.3](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/5.3/Logger/manifests)
+- [5.4](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/5.4/WikiBot)
