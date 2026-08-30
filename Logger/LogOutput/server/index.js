@@ -26,7 +26,9 @@ app.get('/', async (_req, res) => {
 
     const fourthLine = `Ping / Pongs: ${result.data}`;
 
-    res.type('text/plain').send(`${firstLine}\n${secondLine}\n${thirdLine}\n${fourthLine}`);
+    const fifthLine = "greetings: Hello from version 1"
+
+    res.type('text/plain').send(`${firstLine}\n${secondLine}\n${thirdLine}\n${fourthLine}\n${fifthLine}`);
 });
 
 app.get('/healthz', async (_req, res) => {
