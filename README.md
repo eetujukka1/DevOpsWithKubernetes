@@ -75,3 +75,6 @@ When considering managed vs self-hosted databases, several things should be take
 - [4.10](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/4.10)
 
 [The project deployment config repository](https://github.com/eetujukka1/DevOpsWithKubernetes-TheProject-Config)
+
+### Chapter 6
+- [5.1](https://github.com/eetujukka1/DevOpsWithKubernetes/tree/5.1/DummySite)
