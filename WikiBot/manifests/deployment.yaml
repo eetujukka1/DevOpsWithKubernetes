@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wikibot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wikibot
+  template:
+    metadata:
+      labels:
+        app: wikibot
+    spec:
+      initContainers:
+        - name: wikibot-init
+          image: eetujukka/wikibot-init:latest
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: wikibot-www
+              mountPath: /www
+      containers:
+        - name: wikibot-server
+          image: eetujukka/wikibot-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          volumeMounts:
+            - name: wikibot-www
+              mountPath: /www
+              readOnly: true
+        - name: wikibot-scraper
+          image: eetujukka/wikibot-scraper:latest
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: wikibot-www
+              mountPath: /www
+      volumes:
+        - name: wikibot-www
+          emptyDir: {}
