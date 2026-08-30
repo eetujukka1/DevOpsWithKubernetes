@@ -5,5 +5,7 @@ metadata:
   namespace: logger
 data:
   message: "hello world"
+  greeting-v1: "Hello from version 1"
+  greeting-v2: "Hello from version 2"
   information: |
     this text is from file

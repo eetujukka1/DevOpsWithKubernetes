@@ -26,7 +26,7 @@ app.get('/', async (_req, res) => {
 
     const fourthLine = `Ping / Pongs: ${result.data}`;
 
-    const fifthLine = "greetings: Hello from version 1"
+    const fifthLine = `greetings: ${process.env.GREETING || 'Hello from version 1'}`;
 
     res.type('text/plain').send(`${firstLine}\n${secondLine}\n${thirdLine}\n${fourthLine}\n${fifthLine}`);
 });

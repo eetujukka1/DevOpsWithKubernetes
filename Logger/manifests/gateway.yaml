@@ -1,14 +1,53 @@
-apiVersion: gateway.networking.k8s.io/v1
+apiVersion: networking.istio.io/v1
 kind: Gateway
 metadata:
   name: logger-gateway
-  namespace: logger
 spec:
-  gatewayClassName: gke-l7-global-external-managed
-  listeners:
-    - name: http
-      protocol: HTTP
-      port: 80
-      allowedRoutes:
-        kinds:
-          - kind: HTTPRoute
+  selector:
+    istio: loggergateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+
+---
+
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: logger-virtua-service
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - logger-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /log-output
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            host: log-output-svc
+            port:
+              number: 2345
+          weight: 50
+        - destination:
+            host: log-output-svc-v2
+            port:
+              number: 2345
+          weight: 50
+    - match:
+        - uri:
+            prefix: /pingpong
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            host: pingpong-svc
+            port:
+              number: 6789
