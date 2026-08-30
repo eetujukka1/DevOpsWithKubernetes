@@ -7,9 +7,25 @@ spec:
   type: ClusterIP
   selector:
     app: greeting-service
+  ports:
+    - name: http
+      port: 3003
+      protocol: TCP
+      targetPort: 3003
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greeting-service-svc-v1
+  namespace: logger
+spec:
+  type: ClusterIP
+  selector:
+    app: greeting-service
     version: "1"
   ports:
-    - port: 3003
+    - name: http
+      port: 3003
       protocol: TCP
       targetPort: 3003
 ---
@@ -24,6 +40,7 @@ spec:
     app: greeting-service
     version: "2"
   ports:
-    - port: 3003
+    - name: http
+      port: 3003
       protocol: TCP
       targetPort: 3003

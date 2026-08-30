@@ -15,6 +15,7 @@ resources:
 - pingpong-service.yaml
 - pv.yaml
 - pvc.yaml
+- waypoint.yaml
 images:
 - name: eetujukka/greeting-service
   newName: eetujukka/greeting-service
