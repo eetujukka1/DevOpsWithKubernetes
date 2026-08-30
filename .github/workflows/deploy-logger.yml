@@ -19,6 +19,7 @@ env:
   PINGPONG_IMAGE: pingpong
   LOG_OUTPUT_SERVER_IMAGE: log-output-server
   LOG_OUTPUT_LOGGER_IMAGE: log-output-logger
+  GREETING_SERVICE_IMAGE: greeting-service
 
 jobs:
   build-publish:
@@ -44,10 +45,12 @@ jobs:
           docker build --tag "$DOCKERHUB_NAMESPACE/$PINGPONG_IMAGE:$GITHUB_SHA" Logger/PingPong
           docker build --tag "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_SERVER_IMAGE:$GITHUB_SHA" Logger/LogOutput/server
           docker build --tag "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_LOGGER_IMAGE:$GITHUB_SHA" Logger/LogOutput/logger
+          docker build --tag "$DOCKERHUB_NAMESPACE/$GREETING_SERVICE_IMAGE:$GITHUB_SHA" Logger/LogOutput/greeting-service
 
           docker push "$DOCKERHUB_NAMESPACE/$PINGPONG_IMAGE:$GITHUB_SHA"
           docker push "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_SERVER_IMAGE:$GITHUB_SHA"
           docker push "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_LOGGER_IMAGE:$GITHUB_SHA"
+          docker push "$DOCKERHUB_NAMESPACE/$GREETING_SERVICE_IMAGE:$GITHUB_SHA"
 
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v3
@@ -58,7 +61,8 @@ jobs:
           kustomize edit set image \
             "$DOCKERHUB_NAMESPACE/$PINGPONG_IMAGE=$DOCKERHUB_NAMESPACE/$PINGPONG_IMAGE:$GITHUB_SHA" \
             "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_SERVER_IMAGE=$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_SERVER_IMAGE:$GITHUB_SHA" \
-            "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_LOGGER_IMAGE=$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_LOGGER_IMAGE:$GITHUB_SHA"
+            "$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_LOGGER_IMAGE=$DOCKERHUB_NAMESPACE/$LOG_OUTPUT_LOGGER_IMAGE:$GITHUB_SHA" \
+            "$DOCKERHUB_NAMESPACE/$GREETING_SERVICE_IMAGE=$DOCKERHUB_NAMESPACE/$GREETING_SERVICE_IMAGE:$GITHUB_SHA"
 
       - name: Rebase release changes
         run: git pull --rebase --autostash origin "$GITHUB_REF_NAME"

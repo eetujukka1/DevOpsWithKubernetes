@@ -2,6 +2,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: logger
 resources:
+- greeting-service-deployment.yaml
+- greeting-service-routing.yaml
+- greeting-service-service.yaml
 - gateway.yaml
 - log-output-configmap.yaml
 - log-output-deployment.yaml
@@ -13,6 +16,9 @@ resources:
 - pv.yaml
 - pvc.yaml
 images:
+- name: eetujukka/greeting-service
+  newName: eetujukka/greeting-service
+  newTag: 6cff637eac84366653608227af420675f4b38dd1
 - name: eetujukka/log-output-logger
   newName: eetujukka/log-output-logger
   newTag: a54706d0c5b7d1d9812dd0f296e4fea94b5366a9

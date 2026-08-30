@@ -35,12 +35,6 @@ spec:
             host: log-output-svc
             port:
               number: 2345
-          weight: 50
-        - destination:
-            host: log-output-svc-v2
-            port:
-              number: 2345
-          weight: 50
     - match:
         - uri:
             prefix: /pingpong

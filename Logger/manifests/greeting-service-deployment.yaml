@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeting-service-dep-v1
+  namespace: logger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: greeting-service
+      version: "1"
+  template:
+    metadata:
+      labels:
+        app: greeting-service
+        version: "1"
+    spec:
+      containers:
+        - name: greeting-service
+          image: eetujukka/greeting-service:1.0
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /
+              port: 3003
+          env:
+            - name: PORT
+              value: "3003"
+            - name: GREETING
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config-map
+                  key: greeting-v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeting-service-dep-v2
+  namespace: logger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: greeting-service
+      version: "2"
+  template:
+    metadata:
+      labels:
+        app: greeting-service
+        version: "2"
+    spec:
+      containers:
+        - name: greeting-service
+          image: eetujukka/greeting-service:1.0
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /
+              port: 3003
+          env:
+            - name: PORT
+              value: "3003"
+            - name: GREETING
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config-map
+                  key: greeting-v2

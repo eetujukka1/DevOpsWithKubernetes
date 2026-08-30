@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: greeting-service-virtual-service
+  namespace: logger
+spec:
+  hosts:
+    - greeting-service-svc
+  http:
+    - route:
+        - destination:
+            host: greeting-service-svc
+            port:
+              number: 3003
+          weight: 75
+        - destination:
+            host: greeting-service-svc-v2
+            port:
+              number: 3003
+          weight: 25

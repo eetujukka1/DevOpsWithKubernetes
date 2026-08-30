@@ -1,19 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: log-output-dep-v1
+  name: log-output-dep
   namespace: logger
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: log-output
-      version: "1"
   template:
     metadata:
       labels:
         app: log-output
-        version: "1"
     spec:
       volumes:
         - name: config-volume
@@ -42,68 +40,10 @@ spec:
               value: "3002"
             - name: PINGPONG_URL
               value: "http://pingpong-svc:6789"
+            - name: GREETING_URL
+              value: "http://greeting-service-svc:3003"
             - name: MESSAGE
               valueFrom:
                 configMapKeyRef:
                   name: log-output-config-map
                   key: message
-            - name: GREETING
-              valueFrom:
-                configMapKeyRef:
-                  name: log-output-config-map
-                  key: greeting-v1
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: log-output-dep-v2
-  namespace: logger
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: log-output
-      version: "2"
-  template:
-    metadata:
-      labels:
-        app: log-output
-        version: "2"
-    spec:
-      volumes:
-        - name: config-volume
-          configMap:
-            name: log-output-config-map
-            items:
-              - key: information
-                path: information
-      containers:
-        - name: log-output-logger
-          image: eetujukka/log-output-logger:1.2
-        - name: log-output-server
-          image: eetujukka/log-output-server:1.10
-          readinessProbe:
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            httpGet:
-              path: /healthz
-              port: 3002
-          volumeMounts:
-          - name: config-volume
-            mountPath: /app/config/information
-            subPath: information
-          env:
-            - name: PORT
-              value: "3002"
-            - name: PINGPONG_URL
-              value: "http://pingpong-svc:6789"
-            - name: MESSAGE
-              valueFrom:
-                configMapKeyRef:
-                  name: log-output-config-map
-                  key: message
-            - name: GREETING
-              valueFrom:
-                configMapKeyRef:
-                  name: log-output-config-map
-                  key: greeting-v2

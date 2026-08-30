@@ -7,8 +7,10 @@ import path from 'path';
 const app = express();
 const port = process.env.PORT || 3000;
 const pingPongUrl = process.env.PINGPONG_URL || 'http://pingpong-svc:6789';
+const greetingUrl = process.env.GREETING_URL || 'http://greeting-service-svc:3003';
 const pingPongRootUrl = new URL('/', pingPongUrl).toString();
 const pingPongCountUrl = new URL('/count', pingPongUrl).toString();
+const greetingRootUrl = new URL('/', greetingUrl).toString();
 
 const directory = path.join('/', 'app', 'config');
 const filePath = path.join(directory, 'information');
@@ -26,7 +28,8 @@ app.get('/', async (_req, res) => {
 
     const fourthLine = `Ping / Pongs: ${result.data}`;
 
-    const fifthLine = `greetings: ${process.env.GREETING || 'Hello from version 1'}`;
+    const greetingResult = await axios.get(greetingRootUrl);
+    const fifthLine = String(greetingResult.data).trim();
 
     res.type('text/plain').send(`${firstLine}\n${secondLine}\n${thirdLine}\n${fourthLine}\n${fifthLine}`);
 });
