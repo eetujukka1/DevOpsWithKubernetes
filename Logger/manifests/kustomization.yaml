@@ -19,13 +19,13 @@ resources:
 images:
 - name: eetujukka/greeting-service
   newName: eetujukka/greeting-service
-  newTag: a50648e71f212b5170fff38e4738071186cc1bef
+  newTag: 0f779100e54c09cbc7003b0b14e9d01555d2a896
 - name: eetujukka/log-output-logger
   newName: eetujukka/log-output-logger
-  newTag: a50648e71f212b5170fff38e4738071186cc1bef
+  newTag: 0f779100e54c09cbc7003b0b14e9d01555d2a896
 - name: eetujukka/log-output-server
   newName: eetujukka/log-output-server
-  newTag: a50648e71f212b5170fff38e4738071186cc1bef
+  newTag: 0f779100e54c09cbc7003b0b14e9d01555d2a896
 - name: eetujukka/pingpong
   newName: eetujukka/pingpong
-  newTag: a50648e71f212b5170fff38e4738071186cc1bef
+  newTag: 0f779100e54c09cbc7003b0b14e9d01555d2a896
