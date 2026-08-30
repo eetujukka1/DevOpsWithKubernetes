@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummysite-controller-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummysite-controller
+  template:
+    metadata:
+      labels:
+        app: dummysite-controller
+    spec:
+      serviceAccountName: dummysite-controller-serviceaccount
+      containers:
+        - name: controller
+          image: eetujukka/dummysite-controller:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SITE_IMAGE
+              value: eetujukka/dummysite:latest
